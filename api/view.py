@@ -75,7 +75,7 @@ ListData = []
 class MainApiView(ApiView):
 
     @unlogin
-    def getModelList(self, id=None, page=1, size=10):
+    def getNewsList(self, id=None, page=1, size=10):
         TOTAL = 20
         global ListData
         if page == 1:
