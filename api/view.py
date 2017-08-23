@@ -15,7 +15,7 @@ from base.view import BaseView
 
 from faker import Factory
 
-token = []
+token = ["F9E60975-CF4D-460A-83D6-CC4B38972EF1"]
 class ApiView(BaseView):
     def api_response(self, v):
         res = HttpResponse(json.dumps(v), content_type="text/json")
@@ -80,6 +80,8 @@ class ApiView(BaseView):
 
 ListData = []
 MsgList = []
+ProductList = []
+ShopCart = []
 class MainApiView(ApiView):
     @unlogin
     def getNewsList(self, id=None, page=1, size=10):
@@ -115,7 +117,7 @@ class MainApiView(ApiView):
     def getMessageList(self, page=1, size=10):
         TOTAL = 20
         global MsgList
-        if page == 1:
+        if int(page) == 1:
             fake = Factory.create('zh_CN')
             # raw_data = []
             for _ in range(TOTAL):
@@ -169,10 +171,54 @@ class MainApiView(ApiView):
         token.append(_token)
         return {'msg':'綁定成功'}
 
+    @unlogin
+    def getProductList(self):
+        fake = Factory.create('zh_CN')
+        TOTAL = 50
+        global ProductList
+        if not ProductList:
+            for _ in range(TOTAL):
+                tmp = {
+                    'id':random.randint(1,100),
+                    'img':fake.image_url(width=120,height=120),
+                    'name':fake.name(),
+                    'color':fake.safe_color_name(),
+                    'price':random.randint(1,100),
+                    'desc':fake.text(50),
+                    'stock':random.randint(1,100)
+                }
+                ProductList.append(tmp)
+        data = {
+            'total':TOTAL,
+            'items':ProductList,
+            'size':10,
+            'curpage':2
+        }
+        return data
+
+    @unlogin
+    def getShopCart(self):
+        global ShopCart
+        fake = Factory.create('zh_CN')
+        level = ['A','B','C','D']
+        color = ['红','粉','紫','蓝','白']
+        if not ShopCart:
+            for _ in range(10):
+                tmp = {
+                    'id':random.randint(1,100),
+                    'img':fake.image_url(),
+                    'name':fake.text(5),
+                    'price':random.randint(10,50),
+                    'color':color[random.randint(0,4)],
+                    'level':level[random.randint(0,3)],
+                    'quantity':random.randint(1,10),
+                }
+                ShopCart.append(tmp)
+        return ShopCart
+
+
 class ApiDocView(BaseView):
     pass
-
-
 urlpatterns = patterns('',
                        (r'apidoc\.html', ApiDocView.as_view()),
                        (r'(?P<apiname>\S+)', csrf_exempt(MainApiView.as_view()))
